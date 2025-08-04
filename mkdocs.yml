@@ -1,0 +1,6 @@
+site_name: AI Fitness Assistant
+nav:
+  - Home: index.md
+docs_dir: docs
+theme:
+  name: material
