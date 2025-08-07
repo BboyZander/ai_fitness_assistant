@@ -1,7 +1,6 @@
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 from typing import List, Dict
-from pprint import pprint
 
 # ========================
 # 🔐 Настройки доступа
@@ -71,7 +70,7 @@ def format_workout_readable(workout: Dict) -> str:
         burnout_count = workout[ex][5].strip()  # число добивочных подходов
         work_weight = workout[ex][6].strip()
         work_reps = workout[ex][7].strip()
-        work_rpe = workout[ex][8].strip()
+        # work_rpe = workout[ex][8].strip()
         lines.append(f"**{i+1}. {name}**")
 
         if last_best_weight:
