@@ -71,7 +71,7 @@ def format_workout_readable(workout: Dict) -> str:
         work_weight = workout[ex][6].strip()
         work_reps = workout[ex][7].strip()
         # work_rpe = workout[ex][8].strip()
-        lines.append(f"**{i+1}. {name}**")
+        lines.append(f"**{i+1}. {name} ({exercise_reps_count})**")
 
         if last_best_weight:
             lines.append(f"  └ Пред. лучший сет: {last_best_weight} кг × {last_best_reps} повт., RPE {last_best_rpe}")
