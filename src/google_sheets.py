@@ -36,29 +36,18 @@ def get_latest_workout() -> Dict:
 
     # Найдём первую строку, начинающуюся с "Дата тренировки"
     for i, row in enumerate(data):
-        if row and row[0].strip().lower().startswith(" Дата тренировки"):
+        if row and row[0].strip().lower().startswith("дата тренировки"):
             current_index = i
             break
 
     # Считаем упражнения от первой значимой строки
-    exercises = []
-    for row in data[current_index + 2:]:
-        # Стоп — если встретили блок "самочувствие" или пустую строку
-        if not any(cell.strip() for cell in row):
+    for row in data[current_index + 3:]:
+        if row[0].strip().lower().startswith("дата тренировки"):
             break
-        if row[0].strip().lower().startswith("самочувствие"):
+        elif not row[0]:
             break
-        exercises.append(row)
-
-    latest_workout["exercises"] = exercises
-
-    # Поиск комментария
-    for row in exercises:
-        if len(row) >= 39 and row[38].strip():
-            latest_workout["comment"] = row[38]
-            break
-    else:
-        latest_workout["comment"] = ""
+        else:
+            latest_workout[row[0]] = row[1:]
 
     return latest_workout
 
@@ -67,23 +56,22 @@ def get_latest_workout() -> Dict:
 # 📝 Форматированный вывод
 # ========================
 def format_workout_readable(workout: Dict) -> str:
-    lines = ["💪 **Тренировка (без даты)**", ""]
+    lines = ["💪 **Тренировка **", ""]
 
-    for i, row in enumerate(workout["exercises"]):
-        if not row or len(row) < 10:
-            continue
+    for i, ex in enumerate(list(workout.keys())):
+        
+        name = ex.strip()
+        exercise_reps_count = workout[ex][0].strip()
 
-        name = row[0].strip()
-        last_best_weight = row[1].strip()
-        last_best_reps = row[2].strip()
-        last_best_rpe = row[3].strip()
-        warmups = row[4].strip()
-        burnout_notes = row[5].strip()  # пояснение (опционально)
-        burnout_count = row[6].strip()  # число добивочных подходов
-        work_weight = row[7].strip()
-        work_reps = row[8].strip()
-        work_rpe = row[9].strip() or "8"
+        last_best_weight = workout[ex][1].strip()
+        last_best_reps = workout[ex][2].strip()
+        last_best_rpe = workout[ex][3].strip()
 
+        warmups = workout[ex][4].strip()
+        burnout_count = workout[ex][5].strip()  # число добивочных подходов
+        work_weight = workout[ex][6].strip()
+        work_reps = workout[ex][7].strip()
+        work_rpe = workout[ex][8].strip()
         lines.append(f"**{i+1}. {name}**")
 
         if last_best_weight:
@@ -102,15 +90,11 @@ def format_workout_readable(workout: Dict) -> str:
         if burnout_count:
             try:
                 n_sets = int(burnout_count)
-                note = f"{burnout_notes}" if burnout_notes else "по 5 повторений"
-                lines.append(f"  └ Добивочных подходов: {n_sets} × {note}")
+                lines.append(f"  └ Отдых-пауза: {n_sets}")
             except ValueError:
                 pass
 
         lines.append("")  # Пустая строка между упражнениями
-
-    if workout.get("comment"):
-        lines.append(f"📝 Комментарий: {workout['comment']}")
 
     return "\n".join(lines)
 
