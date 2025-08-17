@@ -1,24 +1,23 @@
+from pathlib import Path
 from src.agent.graph import agent
 
-SYSTEM_PROMPT = """
-Ты — AI-ассистент тренера, помогаешь пользователю вести тренировки и контроль веса.
-Говоришь кратко, на русском, по делу. Если нужен контекст из Google Таблиц — вызывай инструмент.
+BASE_DIR = Path(__file__).resolve().parent.parent  # /src
+PROMPT_PATHS = [
+    BASE_DIR / "src" / "prompts" / "system.txt",  # путь внутри src
+    BASE_DIR / "prompts" / "system.txt"           # путь в корне проекта
+]
 
-Правила инструментов:
-- Показать ближайшую тренировку: зови tool `show_latest_workout`.
-- Краткий отчёт по весу за текущий месяц (мин/макс, среднее за 7 дней, заполнен ли сегодня): зови tool `weight_summary`.
-- Построить график веса: зови tool `weight_plot`. Если пользователь не указал период — спроси:
-  «Построить за последний месяц (last) или за весь период (all)?». По умолчанию используем last.
+SYSTEM_PROMPT = None
+for path in PROMPT_PATHS:
+    if path.exists():
+        SYSTEM_PROMPT = path.read_text(encoding="utf-8")
+        break
 
-Формат ответов:
-- Отвечай коротко и читабельно. Если запустил график, верни путь к файлу (PNG).
-- Если инструмент вернул ошибку — сообщи об этом понятным текстом.
-
-Ограничения:
-- Не выдумывай данные, которых нет в таблицах. 
-- Если запрос не относится к тренировкам/весу/таблицам — вежливо скажи, что ты узкоспециализированный ассистент тренера.
-"""
-
+if SYSTEM_PROMPT is None:
+    raise FileNotFoundError(
+        "Не найден файл системного промпта. Ожидались пути:\n - "
+        + "\n - ".join(str(p) for p in PROMPT_PATHS)
+    )
 
 def main():
     print("AI–ассистент запущен. Напиши запрос (exit/выход для выхода).")
@@ -29,10 +28,11 @@ def main():
         if q.lower() in {"exit", "quit", "выход"}:
             break
 
-        # Однократный вызов (просто и надёжно)
         result = agent.invoke(
             {"messages": [("system", SYSTEM_PROMPT), ("user", q)]},
-            config={"configurable": {"thread_id": thread}},
+            config={
+                "configurable": {"thread_id": thread, "user_id": "local_user"}
+            },
         )
 
         msgs = result.get("messages", [])
