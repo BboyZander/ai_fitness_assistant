@@ -2,14 +2,17 @@
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 from datetime import date
+# import os
 from typing import Dict, List, Optional
 from gspread.utils import rowcol_to_a1
 
-# попытка подключить matplotlib для локального графика
+# --- ДО ЛЮБОГО ИМПОРТА pyplot ---
 try:
-    import matplotlib.pyplot as plt  # type: ignore
+    import matplotlib
+    matplotlib.use("Agg")  # безопасный безоконный бэкенд
+    import matplotlib.pyplot as plt
 except Exception:
-    plt = None  # график просто не построим
+    plt = None  # позволяем тулу отработать без графиков
 
 # -------- Настройки доступа --------
 SCOPE = [
