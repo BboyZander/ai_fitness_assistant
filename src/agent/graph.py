@@ -4,7 +4,6 @@ from langchain_openai import ChatOpenAI
 from langgraph.prebuilt import create_react_agent
 from .tools import show_latest_workout, weight_summary, weight_plot
 from .memory import memory
-from langchain_core.messages import SystemMessage
 
 load_dotenv()
 
